@@ -1,10 +1,12 @@
 ---
-title: Chatbot3
-emoji: 😻
+title: chatbot3
+emoji: 🐳
 colorFrom: red
-colorTo: yellow
+colorTo: pink
 sdk: static
 pinned: false
+tags:
+  - deepsite
 ---
 
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
