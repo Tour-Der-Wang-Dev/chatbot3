@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure AI Chat Interface</title>
+    <title>Secure AI Chat | OpenRouter</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -11,224 +11,289 @@
             theme: {
                 extend: {
                     colors: {
-                        'ai-green': '#10b981',
-                        'user-blue': '#3b82f6',
-                        'system-yellow': '#f59e0b',
-                        'dark-bg': '#1e293b',
-                        'darker-bg': '#0f172a',
+                        'ai-green': '#30D158',
+                        'user-blue': '#0A84FF',
+                        'system-yellow': '#FF9F0A',
+                        'dark-bg': '#1C1C1E',
+                        'darker-bg': '#121214',
+                        'input-bg': '#2C2C2E',
+                        'border-color': '#3A3A3C'
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     }
                 }
             }
         }
     </script>
     <style>
+        /* Apple-inspired smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
         /* Custom scrollbar */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #1e293b;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
+            background: rgba(255, 255, 255, 0.3);
         }
         
         /* Typing indicator animation */
-        @keyframes typing {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
         .typing-dot {
-            animation: typing 1.5s infinite;
+            animation: typing 1.4s ease-in-out infinite;
+        }
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
         }
         .typing-dot:nth-child(2) {
-            animation-delay: 0.5s;
+            animation-delay: 0.2s;
         }
         .typing-dot:nth-child(3) {
-            animation-delay: 1s;
+            animation-delay: 0.4s;
         }
         
-        /* Message transitions */
-        .message-enter {
-            opacity: 0;
-            transform: translateY(10px);
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.6;
+            }
+            30% {
+                transform: translateY(-4px);
+                opacity: 1;
+            }
         }
-        .message-enter-active {
-            opacity: 1;
-            transform: translateY(0);
-            transition: opacity 300ms, transform 300ms;
+        
+        /* Message entry animation */
+        @keyframes messageIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message-enter {
+            animation: messageIn 0.3s ease-out forwards;
+        }
+        
+        /* Security badge pulse */
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(48, 209, 88, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 6px rgba(48, 209, 88, 0);
+            }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s infinite;
         }
     </style>
 </head>
-<body class="bg-dark-bg text-gray-100 min-h-screen flex flex-col">
-    <header class="bg-darker-bg py-4 px-6 border-b border-gray-700">
+<body class="bg-dark-bg text-gray-100 min-h-screen flex flex-col font-sans antialiased">
+    <!-- Top navigation bar -->
+    <header class="bg-darker-bg py-3 px-6 border-b border-border-color sticky top-0 z-10">
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <img src="https://img5.pic.in.th/file/secure-sv1/307460108_387435583599238_6386334495691428178_n-removebg-preview.png" alt="Logo" class="h-10">
-                <h1 class="text-xl font-bold">Secure AI Chat</h1>
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <i class="fas fa-robot text-white text-sm"></i>
+                </div>
+                <h1 class="text-lg font-semibold">Secure AI Chat</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <div class="flex items-center space-x-2">
-                    <span class="h-3 w-3 rounded-full bg-green-500"></span>
-                    <span class="text-sm">Secure Connection</span>
+                <div class="flex items-center space-x-2 bg-gray-800/50 px-3 py-1 rounded-full">
+                    <div class="w-2 h-2 rounded-full pulse-glow bg-ai-green"></div>
+                    <span class="text-xs font-medium">End-to-End Secure</span>
                 </div>
-                <button id="settings-btn" class="p-2 rounded-full hover:bg-gray-700 transition">
-                    <i class="fas fa-cog"></i>
+                <button id="settings-btn" class="p-2 rounded-full hover:bg-input-bg transition-all duration-200">
+                    <i class="fas fa-sliders-h text-gray-400 hover:text-white"></i>
                 </button>
             </div>
         </div>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
-        <!-- Sidebar -->
-        <div class="w-64 bg-darker-bg border-r border-gray-700 hidden md:block">
-            <div class="p-4">
-                <h2 class="font-semibold text-lg mb-4">Chat Sessions</h2>
-                <div class="space-y-2">
-                    <button class="w-full text-left px-3 py-2 rounded bg-gray-700 hover:bg-gray-600 transition">
-                        <i class="fas fa-plus mr-2"></i> New Chat
-                    </button>
-                    <div class="mt-4 space-y-1">
-                        <div class="px-3 py-2 rounded hover:bg-gray-700 cursor-pointer flex justify-between items-center">
-                            <span>Today's Discussion</span>
-                            <i class="fas fa-ellipsis-v text-gray-400 hover:text-white"></i>
-                        </div>
-                        <div class="px-3 py-2 rounded hover:bg-gray-700 cursor-pointer flex justify-between items-center">
-                            <span>Project Ideas</span>
-                            <i class="fas fa-ellipsis-v text-gray-400 hover:text-white"></i>
-                        </div>
-                        <div class="px-3 py-2 rounded hover:bg-gray-700 cursor-pointer flex justify-between items-center">
-                            <span>Research Help</span>
-                            <i class="fas fa-ellipsis-v text-gray-400 hover:text-white"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Main chat area -->
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <main class="flex-1 flex flex-col overflow-hidden">
             <!-- Messages container -->
             <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4">
-                <!-- Messages will be inserted here -->
-                <div class="message bg-gray-800 rounded-lg p-4 border-l-4 border-system-yellow">
+                <!-- Welcome message -->
+                <div class="message-enter bg-darker-bg rounded-xl p-4 border-l-4 border-system-yellow">
                     <div class="flex items-center text-sm text-system-yellow mb-1">
-                        <span>[10:30 AM] System></span>
+                        <span id="welcome-time">[10:30 AM] System></span>
                     </div>
                     <div class="text-gray-200">
                         Welcome to Secure AI Chat! Your connection is encrypted and all messages are processed securely.
+                        <div class="mt-2 text-xs text-gray-400">
+                            Type <span class="font-mono bg-gray-800/50 px-1.5 py-0.5 rounded">/help</span> to see available commands.
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Typing indicator -->
-            <div id="typing-indicator" class="hidden px-4 py-2 bg-gray-800 rounded-lg mx-4 mb-4 border-l-4 border-ai-green">
+            <div id="typing-indicator" class="hidden px-4 py-3 bg-darker-bg rounded-xl mx-4 mb-4 border-l-4 border-ai-green">
                 <div class="flex items-center text-sm text-ai-green mb-1">
                     <span id="typing-time">[10:30 AM] AI></span>
                 </div>
-                <div class="flex space-x-1">
+                <div class="flex space-x-2 pl-4">
                     <div class="typing-dot h-2 w-2 rounded-full bg-ai-green"></div>
                     <div class="typing-dot h-2 w-2 rounded-full bg-ai-green"></div>
                     <div class="typing-dot h-2 w-2 rounded-full bg-ai-green"></div>
                 </div>
+            </div>
+
+            <!-- Pagination controls -->
+            <div id="pagination-controls" class="px-4 py-2 flex justify-between items-center border-t border-border-color bg-darker-bg">
+                <button id="prev-page" class="px-3 py-1 rounded-lg hover:bg-input-bg disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+                    <i class="fas fa-chevron-left mr-1"></i> Previous
+                </button>
+                <span id="page-indicator" class="text-sm text-gray-400">Page 1 of 1</span>
+                <button id="next-page" class="px-3 py-1 rounded-lg hover:bg-input-bg disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+                    Next <i class="fas fa-chevron-right ml-1"></i>
+                </button>
             </div>
 
             <!-- Input area -->
-            <div class="p-4 border-t border-gray-700 bg-darker-bg">
-                <div class="flex items-end space-x-2">
-                    <div class="flex-1 relative">
-                        <textarea id="message-input" 
-                                  class="w-full bg-gray-800 rounded-lg p-3 pr-10 text-gray-200 border border-gray-700 focus:border-blue-500 focus:outline-none resize-none" 
-                                  rows="1" 
-                                  placeholder="Type your message here... (Shift+Enter for new line)" 
-                                  onkeydown="handleKeyDown(event)"></textarea>
-                        <button id="send-btn" class="absolute right-3 bottom-3 text-blue-500 hover:text-blue-400">
+            <div class="p-4 border-t border-border-color bg-darker-bg">
+                <div class="relative">
+                    <textarea id="message-input" 
+                              class="w-full bg-input-bg rounded-xl p-4 pr-12 text-gray-200 border border-border-color focus:border-user-blue focus:outline-none resize-none transition-all duration-200"
+                              rows="1" 
+                              placeholder="Message Secure AI..." 
+                              onkeydown="handleKeyDown(event)"></textarea>
+                    <div class="absolute right-3 bottom-3 flex space-x-2">
+                        <button id="send-btn" class="p-2 rounded-full bg-user-blue text-white hover:bg-blue-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
-                    <button id="menu-btn" class="p-3 rounded-full bg-gray-700 hover:bg-gray-600">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
                 </div>
-                <div class="mt-2 flex justify-between text-xs text-gray-400">
-                    <div id="char-count">0/2000 characters</div>
-                    <div id="rate-limit">Requests: 0/30 per minute</div>
+                <div class="mt-3 flex justify-between items-center">
+                    <div class="flex space-x-2">
+                        <button id="command-btn" class="p-2 text-gray-400 hover:text-white rounded-full hover:bg-input-bg transition-all">
+                            <i class="fas fa-terminal"></i>
+                        </button>
+                        <button id="attach-btn" class="p-2 text-gray-400 hover:text-white rounded-full hover:bg-input-bg transition-all">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                    </div>
+                    <div class="text-xs text-gray-400 flex items-center space-x-3">
+                        <span id="char-count">0/2000</span>
+                        <span id="rate-limit" class="px-2 py-1 rounded-full bg-gray-800/50">0/30 req/min</span>
+                    </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <!-- Settings modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-darker-bg rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 backdrop-blur-sm">
+        <div class="bg-darker-bg rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl border border-border-color">
+            <div class="p-5 border-b border-border-color flex justify-between items-center sticky top-0 bg-darker-bg z-10">
                 <h3 class="text-lg font-semibold">Settings</h3>
-                <button id="close-settings" class="text-gray-400 hover:text-white">
+                <button id="close-settings" class="p-2 rounded-full hover:bg-input-bg transition">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="p-4 space-y-6">
+            <div class="p-5 space-y-6">
                 <div>
-                    <h4 class="font-medium mb-2">API Configuration</h4>
-                    <div class="space-y-3">
+                    <h4 class="font-medium mb-3 text-gray-300">API Configuration</h4>
+                    <div class="space-y-4">
                         <div>
-                            <label class="block text-sm text-gray-400 mb-1">API Key</label>
+                            <label class="block text-sm text-gray-400 mb-2">OpenRouter API Key</label>
                             <div class="relative">
-                                <input type="password" id="api-key-input" class="w-full bg-gray-800 rounded p-2 pr-10 text-gray-200 border border-gray-700" placeholder="Enter your API key">
-                                <button id="toggle-api-key" class="absolute right-2 top-2 text-gray-400 hover:text-white">
+                                <input type="password" id="api-key-input" class="w-full bg-input-bg rounded-xl p-3 pr-10 text-gray-200 border border-border-color focus:border-blue-500 focus:outline-none" placeholder="sk-or-xxxxxxxxxxxxxxxx">
+                                <button id="toggle-api-key" class="absolute right-3 top-3 text-gray-400 hover:text-white">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
+                            <p class="text-xs text-gray-500 mt-1">Stored securely in your browser</p>
                         </div>
                         <div>
-                            <label class="block text-sm text-gray-400 mb-1">AI Model</label>
-                            <select id="model-select" class="w-full bg-gray-800 rounded p-2 text-gray-200 border border-gray-700">
+                            <label class="block text-sm text-gray-400 mb-2">AI Model</label>
+                            <select id="model-select" class="w-full bg-input-bg rounded-xl p-3 text-gray-200 border border-border-color focus:border-blue-500 focus:outline-none appearance-none">
                                 <option value="openrouter/auto">Auto-select best model</option>
                                 <option value="openai/gpt-4">GPT-4</option>
                                 <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
                                 <option value="anthropic/claude-2">Claude 2</option>
                                 <option value="google/palm-2-chat-bison">PaLM 2 Chat</option>
+                                <option value="meta-llama/llama-2-70b-chat">Llama 2 70B</option>
                             </select>
                         </div>
                     </div>
                 </div>
+                
                 <div>
-                    <h4 class="font-medium mb-2">Security Settings</h4>
-                    <div class="space-y-2">
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" checked class="rounded bg-gray-800 border-gray-700 text-blue-500">
-                            <span>Enforce HTTPS</span>
+                    <h4 class="font-medium mb-3 text-gray-300">Security Settings</h4>
+                    <div class="space-y-3">
+                        <label class="flex items-center justify-between p-3 rounded-lg bg-input-bg hover:bg-gray-800/50 cursor-pointer">
+                            <div>
+                                <div class="font-medium">HTTPS Enforcement</div>
+                                <div class="text-xs text-gray-400">All connections use TLS 1.3</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-ai-green"></div>
+                            </label>
                         </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" checked class="rounded bg-gray-800 border-gray-700 text-blue-500">
-                            <span>Input Validation</span>
+                        <label class="flex items-center justify-between p-3 rounded-lg bg-input-bg hover:bg-gray-800/50 cursor-pointer">
+                            <div>
+                                <div class="font-medium">Input Validation</div>
+                                <div class="text-xs text-gray-400">Sanitize all messages</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-ai-green"></div>
+                            </label>
                         </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" checked class="rounded bg-gray-800 border-gray-700 text-blue-500">
-                            <span>Message Sanitization</span>
+                        <label class="flex items-center justify-between p-3 rounded-lg bg-input-bg hover:bg-gray-800/50 cursor-pointer">
+                            <div>
+                                <div class="font-medium">Rate Limiting</div>
+                                <div class="text-xs text-gray-400">30 requests/minute</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-ai-green"></div>
+                            </label>
                         </label>
                     </div>
                 </div>
+                
                 <div>
-                    <h4 class="font-medium mb-2">Chat Settings</h4>
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-center">
-                            <span>Auto-save interval</span>
-                            <select class="bg-gray-800 rounded p-1 text-gray-200 border border-gray-700">
+                    <h4 class="font-medium mb-3 text-gray-300">Chat Settings</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 rounded-lg bg-input-bg">
+                            <div>
+                                <div class="font-medium">Auto-save Interval</div>
+                                <div class="text-xs text-gray-400">Save chat history periodically</div>
+                            </div>
+                            <select class="bg-gray-800 rounded-lg p-1.5 text-gray-200 border border-border-color text-sm">
                                 <option>5 minutes</option>
                                 <option>10 minutes</option>
                                 <option>15 minutes</option>
-                                <option>30 minutes</option>
                             </select>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span>Messages per page</span>
-                            <select class="bg-gray-800 rounded p-1 text-gray-200 border border-gray-700">
+                        <div class="flex items-center justify-between p-3 rounded-lg bg-input-bg">
+                            <div>
+                                <div class="font-medium">Messages Per Page</div>
+                                <div class="text-xs text-gray-400">Number of messages to display</div>
+                            </div>
+                            <select class="bg-gray-800 rounded-lg p-1.5 text-gray-200 border border-border-color text-sm">
                                 <option>20</option>
                                 <option>30</option>
                                 <option>50</option>
@@ -236,40 +301,109 @@
                         </div>
                     </div>
                 </div>
-                <div class="pt-2">
-                    <button class="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
+                
+                <div class="pt-2 space-y-3">
+                    <button id="save-settings" class="w-full py-3 bg-user-blue hover:bg-blue-600 rounded-xl transition font-medium">
                         Save Settings
+                    </button>
+                    <button id="export-chat" class="w-full py-3 bg-transparent border border-border-color hover:bg-input-bg rounded-xl transition font-medium">
+                        Export Chat History
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Command menu -->
-    <div id="command-menu" class="absolute bottom-16 right-4 bg-gray-800 rounded-lg shadow-lg border border-gray-700 hidden z-40 w-48">
-        <div class="p-2 border-b border-gray-700 text-sm font-medium">Chat Commands</div>
-        <div class="divide-y divide-gray-700">
-            <button class="w-full text-left px-3 py-2 hover:bg-gray-700 flex items-center">
-                <i class="fas fa-question-circle mr-2 text-blue-400"></i> /help
-            </button>
-            <button class="w-full text-left px-3 py-2 hover:bg-gray-700 flex items-center">
-                <i class="fas fa-trash-alt mr-2 text-red-400"></i> /clear
-            </button>
-            <button class="w-full text-left px-3 py-2 hover:bg-gray-700 flex items-center">
-                <i class="fas fa-sign-out-alt mr-2 text-yellow-400"></i> /exit
-            </button>
-            <button class="w-full text-left px-3 py-2 hover:bg-gray-700 flex items-center">
-                <i class="fas fa-save mr-2 text-green-400"></i> /save
-            </button>
-            <button class="w-full text-left px-3 py-2 hover:bg-gray-700 flex items-center">
-                <i class="fas fa-robot mr-2 text-purple-400"></i> /model
-            </button>
-            <button class="w-full text-left px-3 py-2 hover:bg-gray-700 flex items-center">
-                <i class="fas fa-redo mr-2 text-blue-400"></i> /retry
-            </button>
-            <button class="w-full text-left px-3 py-2 hover:bg-gray-700 flex items-center">
-                <i class="fas fa-arrows-alt-v mr-2 text-gray-400"></i> /scroll
-            </button>
+    <!-- Command palette -->
+    <div id="command-palette" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-darker-bg rounded-xl shadow-2xl border border-border-color hidden z-40 w-11/12 max-w-md">
+        <div class="p-3 border-b border-border-color text-sm font-medium flex justify-between items-center">
+            <span>Command Palette</span>
+            <span class="text-xs text-gray-400">Press Esc to close</span>
+        </div>
+        <div class="divide-y divide-border-color max-h-96 overflow-y-auto">
+            <div class="command-group">
+                <div class="px-3 py-2 text-xs text-gray-400 uppercase tracking-wider">Chat Controls</div>
+                <button class="command-item" data-command="/help">
+                    <div class="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium">Help</div>
+                        <div class="text-xs text-gray-400">Show available commands</div>
+                    </div>
+                </button>
+                <button class="command-item" data-command="/clear">
+                    <div class="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-400">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium">Clear Chat</div>
+                        <div class="text-xs text-gray-400">Remove all messages</div>
+                    </div>
+                </button>
+                <button class="command-item" data-command="/exit">
+                    <div class="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium">Exit Session</div>
+                        <div class="text-xs text-gray-400">End current chat</div>
+                    </div>
+                </button>
+            </div>
+            
+            <div class="command-group">
+                <div class="px-3 py-2 text-xs text-gray-400 uppercase tracking-wider">AI Controls</div>
+                <button class="command-item" data-command="/model">
+                    <div class="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium">Change Model</div>
+                        <div class="text-xs text-gray-400">Select different AI</div>
+                    </div>
+                </button>
+                <button class="command-item" data-command="/retry">
+                    <div class="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
+                        <i class="fas fa-redo"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium">Retry Response</div>
+                        <div class="text-xs text-gray-400">Regenerate last answer</div>
+                    </div>
+                </button>
+            </div>
+            
+            <div class="command-group">
+                <div class="px-3 py-2 text-xs text-gray-400 uppercase tracking-wider">Navigation</div>
+                <button class="command-item" data-command="/save">
+                    <div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-400">
+                        <i class="fas fa-save"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium">Save Chat</div>
+                        <div class="text-xs text-gray-400">Export to file</div>
+                    </div>
+                </button>
+                <button class="command-item" data-command="/scroll up">
+                    <div class="w-8 h-8 rounded-full bg-gray-500/10 flex items-center justify-center text-gray-400">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium">Scroll Up</div>
+                        <div class="text-xs text-gray-400">View older messages</div>
+                    </div>
+                </button>
+                <button class="command-item" data-command="/scroll down">
+                    <div class="w-8 h-8 rounded-full bg-gray-500/10 flex items-center justify-center text-gray-400">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium">Scroll Down</div>
+                        <div class="text-xs text-gray-400">View newer messages</div>
+                    </div>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -283,11 +417,13 @@
                 count: 0,
                 lastReset: Date.now()
             },
-            apiKey: '',
-            currentModel: 'openrouter/auto',
+            apiKey: localStorage.getItem('OPENROUTER_API_KEY') || '',
+            currentModel: localStorage.getItem('CURRENT_MODEL') || 'openrouter/auto',
             isTyping: false,
             lastSaveTime: Date.now(),
-            autoSaveInterval: 5 * 60 * 1000 // 5 minutes
+            autoSaveInterval: 5 * 60 * 1000, // 5 minutes
+            sessionId: generateSessionId(),
+            connectionStatus: 'connected'
         };
 
         // DOM elements
@@ -295,8 +431,6 @@
             messagesContainer: document.getElementById('messages-container'),
             messageInput: document.getElementById('message-input'),
             sendBtn: document.getElementById('send-btn'),
-            menuBtn: document.getElementById('menu-btn'),
-            commandMenu: document.getElementById('command-menu'),
             settingsBtn: document.getElementById('settings-btn'),
             settingsModal: document.getElementById('settings-modal'),
             closeSettings: document.getElementById('close-settings'),
@@ -306,12 +440,23 @@
             typingIndicator: document.getElementById('typing-indicator'),
             typingTime: document.getElementById('typing-time'),
             charCount: document.getElementById('char-count'),
-            rateLimitDisplay: document.getElementById('rate-limit')
+            rateLimitDisplay: document.getElementById('rate-limit'),
+            prevPage: document.getElementById('prev-page'),
+            nextPage: document.getElementById('next-page'),
+            pageIndicator: document.getElementById('page-indicator'),
+            commandBtn: document.getElementById('command-btn'),
+            commandPalette: document.getElementById('command-palette'),
+            saveSettings: document.getElementById('save-settings'),
+            exportChat: document.getElementById('export-chat'),
+            welcomeTime: document.getElementById('welcome-time')
         };
 
         // Initialize the app
         function init() {
-            // Load settings from localStorage if available
+            // Set welcome message time
+            elements.welcomeTime.textContent = `[${formatTime(new Date())}] System>`;
+            
+            // Load settings
             loadSettings();
             
             // Set up event listeners
@@ -323,14 +468,18 @@
             // Check rate limit every minute
             setInterval(checkRateLimit, 60000);
             
-            // Display welcome message if no messages exist
-            if (chatState.messages.length === 0) {
-                addSystemMessage("Welcome to Secure AI Chat! Type /help to see available commands.");
-            }
-            
             // Update UI
             updateCharCount();
             updateRateLimitDisplay();
+            updatePaginationControls();
+            
+            // Check if API key is set
+            if (!chatState.apiKey) {
+                setTimeout(() => {
+                    elements.settingsModal.classList.remove('hidden');
+                    addSystemMessage("Please configure your OpenRouter API key in Settings to begin chatting.");
+                }, 500);
+            }
         }
 
         // Set up event listeners
@@ -347,8 +496,25 @@
             // Handle Shift+Enter for new lines
             elements.messageInput.addEventListener('keydown', handleKeyDown);
             
-            // Toggle command menu
-            elements.menuBtn.addEventListener('click', toggleCommandMenu);
+            // Toggle command palette
+            elements.commandBtn.addEventListener('click', toggleCommandPalette);
+            
+            // Handle command palette items
+            document.querySelectorAll('.command-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const command = item.getAttribute('data-command');
+                    elements.messageInput.value = command;
+                    elements.messageInput.focus();
+                    elements.commandPalette.classList.add('hidden');
+                });
+            });
+            
+            // Close command palette with Esc
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    elements.commandPalette.classList.add('hidden');
+                }
+            });
             
             // Toggle settings modal
             elements.settingsBtn.addEventListener('click', () => {
@@ -365,19 +531,36 @@
             // Handle model selection change
             elements.modelSelect.addEventListener('change', (e) => {
                 chatState.currentModel = e.target.value;
-                saveSettings();
+                localStorage.setItem('CURRENT_MODEL', chatState.currentModel);
                 addSystemMessage(`AI model changed to: ${e.target.value}`);
             });
             
             // Update character count as user types
             elements.messageInput.addEventListener('input', updateCharCount);
             
-            // Close command menu when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!elements.commandMenu.contains(e.target) && e.target !== elements.menuBtn) {
-                    elements.commandMenu.classList.add('hidden');
+            // Handle pagination
+            elements.prevPage.addEventListener('click', () => {
+                if (chatState.currentPage > 1) {
+                    chatState.currentPage--;
+                    renderMessages();
+                    updatePaginationControls();
                 }
             });
+            
+            elements.nextPage.addEventListener('click', () => {
+                const totalPages = Math.ceil(chatState.messages.length / chatState.messagesPerPage);
+                if (chatState.currentPage < totalPages) {
+                    chatState.currentPage++;
+                    renderMessages();
+                    updatePaginationControls();
+                }
+            });
+            
+            // Save settings
+            elements.saveSettings.addEventListener('click', saveSettings);
+            
+            // Export chat
+            elements.exportChat.addEventListener('click', exportChatToFile);
         }
 
         // Handle key down events
@@ -392,13 +575,37 @@
                 e.preventDefault();
                 autoCompleteCommand();
             }
+            
+            // Auto-resize textarea
+            if (e.key === 'Enter' || e.key === 'Backspace') {
+                setTimeout(() => {
+                    autoResizeTextarea();
+                }, 0);
+            }
+        }
+
+        // Auto-resize textarea
+        function autoResizeTextarea() {
+            const textarea = elements.messageInput;
+            textarea.style.height = 'auto';
+            textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
         }
 
         // Send message to AI
-        function sendMessage() {
+        async function sendMessage() {
             const messageText = elements.messageInput.value.trim();
             
             if (!messageText) return;
+            
+            // Check connection status
+            if (chatState.connectionStatus !== 'connected') {
+                addSystemMessage("Connection lost. Attempting to reconnect...");
+                await checkConnection();
+                if (chatState.connectionStatus !== 'connected') {
+                    addSystemMessage("Failed to reconnect. Please check your network.");
+                    return;
+                }
+            }
             
             // Check rate limit
             if (chatState.rateLimit.count >= 30) {
@@ -411,6 +618,7 @@
                 handleCommand(messageText);
                 elements.messageInput.value = '';
                 updateCharCount();
+                autoResizeTextarea();
                 return;
             }
             
@@ -420,6 +628,7 @@
             // Clear input
             elements.messageInput.value = '';
             updateCharCount();
+            autoResizeTextarea();
             
             // Show typing indicator
             showTypingIndicator();
@@ -428,24 +637,43 @@
             chatState.rateLimit.count++;
             updateRateLimitDisplay();
             
-            // Call AI API
-            callOpenRouterAPI(messageText)
-                .then(response => {
-                    // Hide typing indicator
-                    hideTypingIndicator();
-                    
-                    // Add AI response to chat
-                    addAIMessage(response);
-                })
-                .catch(error => {
-                    // Hide typing indicator
-                    hideTypingIndicator();
-                    
-                    // Show error message
+            try {
+                // Call AI API with timeout
+                const response = await Promise.race([
+                    callOpenRouterAPI(messageText),
+                    new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Request timeout')), 30000)
+                    )
+                ]);
+                
+                // Hide typing indicator
+                hideTypingIndicator();
+                
+                // Add AI response to chat
+                addAIMessage(response);
+                
+                // Auto-scroll to bottom
+                scrollToBottom();
+                
+            } catch (error) {
+                // Hide typing indicator
+                hideTypingIndicator();
+                
+                // Handle different error types
+                if (error.message.includes('API key')) {
+                    addSystemMessage("API key error. Please check your OpenRouter API key in Settings.");
+                } else if (error.message.includes('timeout')) {
+                    addSystemMessage("Request timed out. The AI is taking too long to respond.");
+                } else {
                     addSystemMessage(`Error: ${error.message}`);
-                    
-                    console.error('API Error:', error);
-                });
+                }
+                
+                // Log error
+                logError(error);
+                
+                // Update connection status
+                chatState.connectionStatus = 'disconnected';
+            }
         }
 
         // Call OpenRouter API
@@ -453,9 +681,6 @@
             if (!chatState.apiKey) {
                 throw new Error("API key is not configured. Please set it in Settings.");
             }
-            
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30-second timeout
             
             try {
                 const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -466,7 +691,6 @@
                         'HTTP-Referer': window.location.href,
                         'X-Title': 'Secure AI Chat'
                     },
-                    signal: controller.signal,
                     body: JSON.stringify({
                         model: chatState.currentModel,
                         messages: [
@@ -479,8 +703,6 @@
                     })
                 });
                 
-                clearTimeout(timeoutId);
-                
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error?.message || 'API request failed');
@@ -489,8 +711,24 @@
                 const data = await response.json();
                 return data.choices[0].message.content;
             } catch (error) {
-                clearTimeout(timeoutId);
                 throw error;
+            }
+        }
+
+        // Check connection status
+        async function checkConnection() {
+            try {
+                await fetch('https://openrouter.ai/api/v1/auth/key', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${chatState.apiKey}`
+                    }
+                });
+                chatState.connectionStatus = 'connected';
+                return true;
+            } catch (error) {
+                chatState.connectionStatus = 'disconnected';
+                return false;
             }
         }
 
@@ -511,7 +749,7 @@
                     exitChat();
                     break;
                 case '/save':
-                    saveChatToFile();
+                    exportChatToFile();
                     break;
                 case '/model':
                     changeModel(args);
@@ -544,20 +782,22 @@ Available commands:
 
         // Clear chat display
         function clearChat() {
-            elements.messagesContainer.innerHTML = '';
+            chatState.messages = chatState.messages.filter(msg => msg.type === 'system');
+            chatState.currentPage = 1;
+            renderMessages();
+            updatePaginationControls();
             addSystemMessage("Chat display cleared.");
         }
 
         // Exit chat session
         function exitChat() {
-            // In a real app, you might want to save before exiting
             addSystemMessage("Session ended. Refresh the page to start a new chat.");
             elements.messageInput.disabled = true;
             elements.sendBtn.disabled = true;
         }
 
-        // Save chat to file
-        function saveChatToFile() {
+        // Export chat to file
+        function exportChatToFile() {
             const chatLog = chatState.messages.map(msg => {
                 const time = formatTime(msg.timestamp);
                 const prefix = msg.type === 'user' ? 'User' : msg.type === 'ai' ? 'AI' : 'System';
@@ -568,11 +808,11 @@ Available commands:
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `chat_log_${new Date().toISOString().slice(0, 10)}.txt`;
+            a.download = `secure_chat_${new Date().toISOString().slice(0, 10)}.txt`;
             a.click();
             URL.revokeObjectURL(url);
             
-            addSystemMessage("Chat history saved to file.");
+            addSystemMessage("Chat history exported to file.");
         }
 
         // Change AI model
@@ -586,20 +826,21 @@ Available commands:
                 'gpt-4': 'openai/gpt-4',
                 'gpt-3.5': 'openai/gpt-3.5-turbo',
                 'claude-2': 'anthropic/claude-2',
-                'palm-2': 'google/palm-2-chat-bison'
+                'palm-2': 'google/palm-2-chat-bison',
+                'llama-2': 'meta-llama/llama-2-70b-chat'
             };
             
             const modelName = args[0].toLowerCase();
             const modelId = modelMap[modelName] || `openrouter/${modelName}`;
             
             chatState.currentModel = modelId;
+            localStorage.setItem('CURRENT_MODEL', modelId);
             elements.modelSelect.value = modelId;
-            saveSettings();
             addSystemMessage(`AI model changed to: ${modelId}`);
         }
 
         // Retry last message
-        function retryLastMessage() {
+        async function retryLastMessage() {
             const lastUserMessage = [...chatState.messages].reverse().find(msg => msg.type === 'user');
             
             if (!lastUserMessage) {
@@ -621,16 +862,16 @@ Available commands:
             // Show typing indicator
             showTypingIndicator();
             
-            // Call API with the last user message
-            callOpenRouterAPI(lastUserMessage.text)
-                .then(response => {
-                    hideTypingIndicator();
-                    addAIMessage(response);
-                })
-                .catch(error => {
-                    hideTypingIndicator();
-                    addSystemMessage(`Error: ${error.message}`);
-                });
+            try {
+                // Call API with the last user message
+                const response = await callOpenRouterAPI(lastUserMessage.text);
+                hideTypingIndicator();
+                addAIMessage(response);
+            } catch (error) {
+                hideTypingIndicator();
+                addSystemMessage(`Error: ${error.message}`);
+                logError(error);
+            }
         }
 
         // Scroll messages
@@ -645,6 +886,7 @@ Available commands:
                 if (chatState.currentPage > 1) {
                     chatState.currentPage--;
                     renderMessages();
+                    updatePaginationControls();
                     addSystemMessage(`Scrolled to page ${chatState.currentPage}`);
                 } else {
                     addSystemMessage("Already at the first page.");
@@ -654,6 +896,7 @@ Available commands:
                 if (chatState.currentPage < totalPages) {
                     chatState.currentPage++;
                     renderMessages();
+                    updatePaginationControls();
                     addSystemMessage(`Scrolled to page ${chatState.currentPage}`);
                 } else {
                     addSystemMessage("Already at the last page.");
@@ -672,7 +915,8 @@ Available commands:
             };
             
             chatState.messages.push(message);
-            renderMessage(message);
+            renderMessages();
+            updatePaginationControls();
             scrollToBottom();
         }
 
@@ -685,7 +929,8 @@ Available commands:
             };
             
             chatState.messages.push(message);
-            renderMessage(message);
+            renderMessages();
+            updatePaginationControls();
             scrollToBottom();
         }
 
@@ -698,7 +943,8 @@ Available commands:
             };
             
             chatState.messages.push(message);
-            renderMessage(message);
+            renderMessages();
+            updatePaginationControls();
             scrollToBottom();
         }
 
@@ -737,18 +983,13 @@ Available commands:
                     break;
             }
             
-            messageElement.className = `message bg-gray-800 rounded-lg p-4 border-l-4 ${borderColor} mb-4 message-enter`;
+            messageElement.className = `message-enter bg-darker-bg rounded-xl p-4 border-l-4 ${borderColor} mb-4`;
             messageElement.innerHTML = `
                 <div class="flex items-center text-sm ${textColor} mb-1">
                     <span>[${formatTime(message.timestamp)}] ${message.type === 'user' ? 'User' : message.type === 'ai' ? 'AI' : 'System'}></span>
                 </div>
                 <div class="text-gray-200 whitespace-pre-wrap">${message.text}</div>
             `;
-            
-            // Add animation
-            setTimeout(() => {
-                messageElement.classList.add('message-enter-active');
-            }, 10);
             
             elements.messagesContainer.appendChild(messageElement);
         }
@@ -767,9 +1008,9 @@ Available commands:
             elements.typingIndicator.classList.add('hidden');
         }
 
-        // Toggle command menu
-        function toggleCommandMenu() {
-            elements.commandMenu.classList.toggle('hidden');
+        // Toggle command palette
+        function toggleCommandPalette() {
+            elements.commandPalette.classList.toggle('hidden');
         }
 
         // Toggle API key visibility
@@ -794,12 +1035,33 @@ Available commands:
         // Update character count
         function updateCharCount() {
             const length = elements.messageInput.value.length;
-            elements.charCount.textContent = `${length}/2000 characters`;
+            elements.charCount.textContent = `${length}/2000`;
+            
+            // Disable send button if message is empty
+            elements.sendBtn.disabled = length === 0;
         }
 
         // Update rate limit display
         function updateRateLimitDisplay() {
-            elements.rateLimitDisplay.textContent = `Requests: ${chatState.rateLimit.count}/30 per minute`;
+            elements.rateLimitDisplay.textContent = `${chatState.rateLimit.count}/30 req/min`;
+            
+            // Change color if approaching limit
+            if (chatState.rateLimit.count >= 25) {
+                elements.rateLimitDisplay.classList.add('bg-red-500/20', 'text-red-400');
+                elements.rateLimitDisplay.classList.remove('bg-gray-800/50');
+            } else {
+                elements.rateLimitDisplay.classList.remove('bg-red-500/20', 'text-red-400');
+                elements.rateLimitDisplay.classList.add('bg-gray-800/50');
+            }
+        }
+
+        // Update pagination controls
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(chatState.messages.length / chatState.messagesPerPage);
+            elements.pageIndicator.textContent = `Page ${chatState.currentPage} of ${totalPages}`;
+            
+            elements.prevPage.disabled = chatState.currentPage <= 1;
+            elements.nextPage.disabled = chatState.currentPage >= totalPages;
         }
 
         // Check and reset rate limit if needed
@@ -819,25 +1081,43 @@ Available commands:
             console.log('Chat auto-saved');
         }
 
-        // Save settings to localStorage
+        // Save settings
         function saveSettings() {
-            localStorage.setItem('secureChatSettings', JSON.stringify({
-                apiKey: chatState.apiKey,
-                currentModel: chatState.currentModel
-            }));
+            const apiKey = elements.apiKeyInput.value.trim();
+            
+            if (apiKey) {
+                chatState.apiKey = apiKey;
+                localStorage.setItem('OPENROUTER_API_KEY', apiKey);
+                
+                const model = elements.modelSelect.value;
+                chatState.currentModel = model;
+                localStorage.setItem('CURRENT_MODEL', model);
+                
+                addSystemMessage("Settings saved successfully.");
+                elements.settingsModal.classList.add('hidden');
+            } else {
+                alert("Please enter a valid API key");
+            }
         }
 
-        // Load settings from localStorage
+        // Load settings
         function loadSettings() {
-            const savedSettings = localStorage.getItem('secureChatSettings');
-            if (savedSettings) {
-                const settings = JSON.parse(savedSettings);
-                chatState.apiKey = settings.apiKey || '';
-                chatState.currentModel = settings.currentModel || 'openrouter/auto';
-                
+            if (chatState.apiKey) {
                 elements.apiKeyInput.value = chatState.apiKey;
+            }
+            
+            if (chatState.currentModel) {
                 elements.modelSelect.value = chatState.currentModel;
             }
+        }
+
+        // Log errors
+        function logError(error) {
+            const timestamp = new Date().toISOString();
+            const errorLog = `${timestamp} - ${error.message}\n${error.stack || 'No stack trace'}\n\n`;
+            
+            // In a real app, you would send this to a logging service
+            console.error(errorLog);
         }
 
         // Sanitize message to prevent XSS
@@ -856,6 +1136,15 @@ Available commands:
             hours = hours % 12;
             hours = hours ? hours : 12; // the hour '0' should be '12'
             return `${hours}:${minutes} ${ampm}`;
+        }
+
+        // Generate session ID
+        function generateSessionId() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
         }
 
         // Scroll to bottom of messages
